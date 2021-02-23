@@ -1,3 +1,5 @@
+(defvar luda/default-font-size 130)
+
 (setq inhibit-starup-message t)
 
 (scroll-bar-mode -1)
@@ -7,7 +9,7 @@
 (tooltip-mode -1)
 (set-fringe-mode 10)
 
-(set-face-attribute 'default nil :font "Fira Code iScript" :height 130)
+(set-face-attribute 'default nil :font "Fira Code iScript" :height luda/default-font-size)
 
 (load-theme 'wombat)
 
@@ -94,16 +96,43 @@
   ([remap describe-variable] . counsel-describe-variable)
   ([remap describe-key] . helpful-key))
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(doom-themes helpful counsel ivy-rich which-key rainbow-delimiters doom-modeline ivy command-log-mode command-line-mode use-package)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+(use-package general
+  :config
+  (general-create-definer luda/leader-keys
+    :keymaps '(normal insert visual emacs)
+    :prefix "SPC"
+    :global-prefix "C-SPC")
+
+  (luda/leader-keys
+    "t" '(:ignore t :which-key "toggles")
+    "tt" '(counsel-load-theme :which-key "choose theme")))
+
+(use-package evil
+  :init
+  (setq evil-want-integration t)
+  (setq evil-want-keybinding nil)
+  :config
+  (evil-mode 1)
+  (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
+  (evil-global-set-key 'motion "j" 'evil-next-visual-line)
+  (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+  (evil-set-initial-state 'messages-buffer-mode 'normal))
+
+(use-package evil-collection
+  :after evil
+  :config
+  (evil-collection-init))
+
+(use-package hydra)
+
+(defhydra hydra-text-scale (:timeout 4)
+  "scale text"
+  ("j" text-scale-increase "in")
+  ("k" text-scale-decrease "out")
+  ("f" nil "finished" :exit t))
+
+(luda/leader-keys
+  "ts" '(hydra-text-scale/body :which-key "scale text"))
+  
+(setq custom-file "./custom.el")
+(load custom-file)
