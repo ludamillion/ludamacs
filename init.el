@@ -49,8 +49,22 @@
   :config
   (ivy-mode 1))
 
+(use-package ivy-rich
+  :init (ivy-rich-mode 1))
+
+(use-package counsel
+  :bind (("M-x" . counsel-M-x)
+	 ("C-x b" . counsel-ibuffer)
+	 ("C-x C-f" . counsel-find-file)
+         :map minibuffer-local-map
+         ("C-r" . 'counsel-minibuffer-history))
+  :config
+  (counsel-mode 1))
+
 (use-package doom-modeline
   :init (doom-modeline-mode 1))
+
+(use-package doom-themes)
 
 (column-number-mode)
 (global-display-line-numbers-mode t)
@@ -70,13 +84,23 @@
   :config
   (setq which-key-idle-delay 0.3))
 
+(use-package helpful
+  :custom
+  (counsel-describe-function-function #'helpful-callable)
+  (counsel-describe-variable-function #'helpful-variable)
+  :bind
+  ([remap describe-function] . counsel-describe-function)
+  ([remap describe-command] . helpful-command)
+  ([remap describe-variable] . counsel-describe-variable)
+  ([remap describe-key] . helpful-key))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(which-key rainbow-delimiters doom-modeline ivy command-log-mode command-line-mode use-package)))
+   '(doom-themes helpful counsel ivy-rich which-key rainbow-delimiters doom-modeline ivy command-log-mode command-line-mode use-package)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
