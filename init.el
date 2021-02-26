@@ -1,4 +1,5 @@
 (defvar luda/default-font-size 130)
+(defvar luda/default-variable-font-size luda/default-font-size)
 
 (setq inhibit-starup-message t)
 
@@ -12,7 +13,13 @@
 (tooltip-mode -1)
 (set-fringe-mode 10)
 
-(set-face-attribute 'default nil :font "Fira Code iScript" :height luda/default-font-size)
+(set-face-attribute 'default nil :font "Fira Code" :height luda/default-font-size)
+
+;; Set the fixed pitch face
+(set-face-attribute 'fixed-pitch nil :font "Fira Code" :height luda/default-font-size)
+
+;; Set the variable pitch face
+(set-face-attribute 'variable-pitch nil :font "Source Sans Pro" :height luda/default-variable-font-size :weight 'regular)
 
 (load-theme 'wombat)
 
@@ -168,3 +175,60 @@
   :config (counsel-projectile-mode))
 
 (use-package magit)
+
+(defun luda/org-mode-setup ()
+  (org-indent-mode)
+  (variable-pitch-mode 1)
+  (visual-line-mode 1))
+
+(defun luda/org-font-setup ()
+  ;; Replace list hyphen with dot
+  (font-lock-add-keywords 'org-mode
+			  '(("^ *\\([-]\\) "
+			     (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+
+  ;; Set faces for heading levels
+  (dolist (face '((org-level-1 . 1.2)
+		  (org-level-2 . 1.1)
+		  (org-level-3 . 1.05)
+		  (org-level-4 . 1.0)
+		  (org-level-5 . 1.0)
+		  (org-level-6 . 1.0)
+		  (org-level-7 . 1.0)
+		  (org-level-8 . 1.0)))
+    (set-face-attribute (car face) nil :font "Source Sans Pro" :weight 'regular :height (cdr face)))
+
+  ;; Ensure that anything that should be fixed-pitch in Org files appears that way
+  (set-face-attribute 'org-block nil    :foreground nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-table nil    :inherit 'fixed-pitch)
+  (set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
+  (set-face-attribute 'org-code nil     :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-table nil    :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-checkbox nil  :inherit 'fixed-pitch)
+  (set-face-attribute 'line-number nil :inherit 'fixed-pitch)
+  (set-face-attribute 'line-number-current-line nil :inherit 'fixed-pitch))
+
+(use-package org
+  :hook (org-mode . luda/org-mode-setup)
+  :config
+  (luda/org-font-setup)
+  (setq org-ellipsis " ▼"))
+
+(use-package org-bullets
+  :after org
+  :hook (org-mode . org-bullets-mode)
+  :custom
+  (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+
+(defun luda/org-mode-visual-fill ()
+  (setq visual-fill-column-width 100
+        visual-fill-column-center-text t)
+  (visual-fill-column-mode 1))
+
+(use-package visual-fill-column
+  :hook (org-mode . luda/org-mode-visual-fill))
+
+(use-package sh-mode)
