@@ -5,3 +5,8 @@ eshell/*
 
 projectile-bookmarks.eld
 transient/*
+
+.cache
+var/
+
+.last-package-update-day
